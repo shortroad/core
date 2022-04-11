@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RegistrationTest extends TestCase
 {
+    use RefreshDatabase;
 
     /**
      * Registration function should not be processed without data
@@ -19,16 +21,16 @@ class RegistrationTest extends TestCase
     {
         $data =[];
 
-        $response = $this->post(route('api.v1.auth.register',$data));
+        $response = $this->postJson(route('api.v1.auth.register',$data));
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         $response->assertJsonStructure([
-            'success',
             'message',
             'errors'=>[
                 'name'
             ],
+            'success',
         ]);
     }
 
@@ -45,16 +47,16 @@ class RegistrationTest extends TestCase
             'password' => '12345678'
         ];
 
-        $response = $this->post(route('api.v1.auth.register'), $user_data);
+        $response = $this->postJson(route('api.v1.auth.register'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         $response->assertJsonStructure([
-            'success',
             'message',
             'errors'=>[
                 'name'
             ],
+            'success',
         ]);
     }
     /**
@@ -70,16 +72,16 @@ class RegistrationTest extends TestCase
             'password' => '12345678'
         ];
 
-        $response = $this->post(route('api.v1.auth.register'),$user_data);
+        $response = $this->postJson(route('api.v1.auth.register'),$user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         $response->assertJsonStructure([
-            'success',
             'message',
             'errors'=>[
                 'email'
             ],
+            'success',
         ]);
     }
 
@@ -96,19 +98,48 @@ class RegistrationTest extends TestCase
             'password' => '123'
         ];
 
-        $response = $this->post(route('api.v1.auth.register'),$user_data);
+        $response = $this->postJson(route('api.v1.auth.register'),$user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         $response->assertJsonStructure([
-            'success',
             'message',
             'errors'=>[
                 'password'
             ],
+            'success',
         ]);
 
     }
+
+    /**
+     * User can't register successfully with duplicate email
+     *
+     * @return void
+     */
+    public function test_user_cant_register_with_duplicate_email()
+    {
+        $user_data = [
+            'name' => 'Mohammad Gazori',
+            'email' => 'info@mgazori.com',
+            'password' => '12345678'
+        ];
+
+        User::create($user_data);
+
+        $response = $this->postJson(route('api.v1.auth.register'),$user_data);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors'=>[
+                'email'
+            ],
+            'success',
+        ]);
+    }
+
 
     /**
      * User should be registered successfully with right data
@@ -123,17 +154,21 @@ class RegistrationTest extends TestCase
             'password' => '12345678'
         ];
 
-        $response = $this->post(route('api.v1.auth.register'),$user_data);
+        $response = $this->postJson(route('api.v1.auth.register'),$user_data);
+
+        $user = User::where(['email'=>$user_data['email']])->first();
+
+        $this->assertEquals($user_data['name'],$user->name);
 
         $response->assertCreated();
 
         $response->assertJsonStructure([
-            'success',
             'message',
             'data'=>[
                 'name',
                 'email'
             ],
+            'success',
         ]);
     }
 }
