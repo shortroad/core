@@ -21,14 +21,84 @@ class GetTokenTest extends TestCase
     public function test_user_cant_get_token_without_data()
     {
         $user_data = [];
-        $response = $this->getJson(route('api.v1.auth.token'),$user_data);
+        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         $response->assertJsonStructure([
             'message',
-            'errors'=>[
+            'errors' => [
                 'email',
+                'password'
+            ],
+            'success',
+        ]);
+    }
+
+    /**
+     * User can't get token without email
+     *
+     * @return void
+     */
+    public function test_user_cant_get_token_without_email()
+    {
+        $user_data = [
+            'password' => 12345678
+        ];
+        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'email'
+            ],
+            'success',
+        ]);
+    }
+
+    /**
+     * User can't get token without password
+     *
+     * @return void
+     */
+    public function test_user_cant_get_token_without_password()
+    {
+        $user_data = [
+            'email' => 'info@mgazori.com'
+        ];
+        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'password'
+            ],
+            'success',
+        ]);
+    }
+
+    /**
+     * User can't get token with less than eight char password
+     *
+     * @return void
+     */
+    public function test_user_cant_get_token_with_less_than_eight_char_password()
+    {
+        $user_data = [
+            'email' => 'info@mgazori.com',
+            'password' => 123
+        ];
+        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
                 'password'
             ],
             'success',
@@ -46,13 +116,13 @@ class GetTokenTest extends TestCase
             'email' => 'wrong',
             'password' => 12345678
         ];
-        $response = $this->getJson(route('api.v1.auth.token'),$user_data);
+        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         $response->assertJsonStructure([
             'message',
-            'errors'=>[
+            'errors' => [
                 'email'
             ],
             'success',
@@ -71,9 +141,9 @@ class GetTokenTest extends TestCase
             'password' => 12345678
         ];
 
-        $response = $this->getJson(route('api.v1.auth.token'),$user_data);
+        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
 
-        $user = User::where('email',$user_data['email'])->first();
+        $user = User::where('email', $user_data['email'])->first();
 
         $this->assertNull($user);
 
@@ -82,7 +152,7 @@ class GetTokenTest extends TestCase
 
         $response->assertJsonStructure([
             'message',
-            'errors'=>[
+            'errors' => [
                 'email'
             ],
             'success',
@@ -97,17 +167,24 @@ class GetTokenTest extends TestCase
     public function test_user_cant_get_token_with_wrong_password()
     {
         $user_data = [
+            'name' => 'Mohammad Gazori',
             'email' => 'info@mgazori.com',
-            'password' => 'wrong'
+            'password' => 'wrong password'
         ];
 
-        $response = $this->getJson(route('api.v1.auth.token'),$user_data);
+        User::create([
+            'name' => $user_data['name'],
+            'email' => $user_data['email'],
+            'password' => Hash::make('right password'),
+        ]);
+
+        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNAUTHORIZED);
 
         $response->assertJsonStructure([
             'message',
-            'errors'=>[
+            'errors' => [
                 'credential'
             ],
             'success',
@@ -124,7 +201,7 @@ class GetTokenTest extends TestCase
         $user_data = [
             'name' => 'Mohammad Gazori',
             'email' => 'info@mgazori.com',
-            'password' => 12345687
+            'password' => 12345678
         ];
 
         User::create([
@@ -133,15 +210,13 @@ class GetTokenTest extends TestCase
             'password' => Hash::make($user_data['password']),
         ]);
 
-        $response = $this->getJson(route('api.v1.auth.token'),$user_data);
-
-        $this->assertTrue();
+        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_OK);
 
         $response->assertJsonStructure([
             'message',
-            'data'=>[
+            'data' => [
                 'token'
             ],
             'success',
