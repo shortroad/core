@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         'api.v1.response.error' => \App\Http\Middleware\Api\V1\JsonErrorResponse::class,
+        'api.v1.token.required' => \App\Http\Middleware\Api\V1\Auth\TokenRequiredMiddleware::class,
     ];
 }

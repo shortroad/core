@@ -13,3 +13,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [\App\Http\Controllers\Api\V1\AuthController::class, 'register'])->name('auth.register');
 
 Route::get('/token', [\App\Http\Controllers\Api\V1\AuthController::class, 'getToken'])->name('auth.token');
+
+
+Route::group(['middleware' => ['api.v1.token.required']], function () {
+    Route::get('/whoami', [\App\Http\Controllers\Api\V1\AuthController::class, 'whoAmI'])->name('auth.whoami');
+});

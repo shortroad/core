@@ -11,8 +11,9 @@ trait TokenAuthenticate
 {
 
     public string $token;
+    public string $header_token;
     public string $route_method;
-    public string $route_name;
+    public string $route;
 
     /**
      * Set token value.
@@ -30,6 +31,7 @@ trait TokenAuthenticate
             'user_id' => $user->id,
             'created_at' => time()
         ]);
+        $this->header_token = 'Bearer ' . $this->token;
     }
 
     /**
@@ -39,7 +41,7 @@ trait TokenAuthenticate
      */
     public function test_route_not_accessible_without_token()
     {
-        $response = $this->json($this->route_method, route($this->route_name));
+        $response = $this->json($this->route_method, $this->route);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
@@ -59,7 +61,7 @@ trait TokenAuthenticate
      */
     public function test_route_not_accessible_without_bearer_in_first_of_token_header()
     {
-        $response = $this->json($this->route_method, route($this->route_name), ['HTTP_Authorization' => $this->token]);
+        $response = $this->json($this->route_method, $this->route, [], ['HTTP_Authorization' => $this->token]);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
@@ -79,7 +81,7 @@ trait TokenAuthenticate
      */
     public function test_route_not_accessible_with_invalid_token()
     {
-        $response = $this->json($this->route_method, route($this->route_name), ['HTTP_Authorization' => $this->token]);
+        $response = $this->json($this->route_method, $this->route, [], ['HTTP_Authorization' => $this->token]);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
@@ -102,9 +104,9 @@ trait TokenAuthenticate
 
         User::where('email', 'info@mgazori.com')->delete();
 
-        $response = $this->json($this->route_method, route($this->route_name), ['HTTP_Authorization' => $this->token]);
+        $response = $this->json($this->route_method, $this->route, [], ['HTTP_Authorization' => $this->header_token]);
 
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
 
         $response->assertJsonStructure([
             'message',
