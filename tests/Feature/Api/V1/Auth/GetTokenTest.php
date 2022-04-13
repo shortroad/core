@@ -21,7 +21,7 @@ class GetTokenTest extends TestCase
     public function test_user_cant_get_token_without_data()
     {
         $user_data = [];
-        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+        $response = $this->json('GET', route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
@@ -45,7 +45,7 @@ class GetTokenTest extends TestCase
         $user_data = [
             'password' => 12345678
         ];
-        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+        $response = $this->json('GET', route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
@@ -68,7 +68,7 @@ class GetTokenTest extends TestCase
         $user_data = [
             'email' => 'info@mgazori.com'
         ];
-        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+        $response = $this->json('GET', route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
@@ -92,7 +92,7 @@ class GetTokenTest extends TestCase
             'email' => 'info@mgazori.com',
             'password' => 123
         ];
-        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+        $response = $this->json('GET', route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
@@ -116,7 +116,7 @@ class GetTokenTest extends TestCase
             'email' => 'wrong',
             'password' => 12345678
         ];
-        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+        $response = $this->json('GET', route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
@@ -141,11 +141,12 @@ class GetTokenTest extends TestCase
             'password' => 12345678
         ];
 
-        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+        $response = $this->json('GET', route('api.v1.auth.token'), $user_data);
 
         $user = User::where('email', $user_data['email'])->first();
 
         $this->assertNull($user);
+
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
@@ -178,7 +179,7 @@ class GetTokenTest extends TestCase
             'password' => Hash::make('right password'),
         ]);
 
-        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+        $response = $this->json('GET', route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_UNAUTHORIZED);
 
@@ -210,7 +211,7 @@ class GetTokenTest extends TestCase
             'password' => Hash::make($user_data['password']),
         ]);
 
-        $response = $this->postJson(route('api.v1.auth.token'), $user_data);
+        $response = $this->json('GET', route('api.v1.auth.token'), $user_data);
 
         $response->assertStatus(Response::HTTP_OK);
 

@@ -37,7 +37,7 @@ class GetTokenRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.exists' => 'This user is not registered',
+            'email.exists' => 'The user was not found with this email.',
         ];
     }
 }
