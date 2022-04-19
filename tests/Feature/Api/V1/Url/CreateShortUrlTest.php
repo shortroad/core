@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Url;
 
+use App\Models\Url;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Symfony\Component\HttpFoundation\Response;
@@ -125,13 +126,19 @@ class CreateShortUrlTest extends TestCase implements TokenAuthenticateInterface
      */
     public function test_user_can_create_short_url_with_right_target()
     {
+        $time = time();
+
         $url_data = [
-            'target' => 'https://mgazori.com'
+            'target' => 'https://mgazori.com/' . $time
         ];
 
         $response = $this->postJson($this->route, $url_data, ['HTTP_Authorization' => $this->header_token]);
 
         $response->assertStatus(Response::HTTP_CREATED);
+
+        $url = Url::where('target', $url_data['target'])->first();
+
+        $this->assertNotNull($url);
 
         $response->assertJsonStructure([
             'message',
