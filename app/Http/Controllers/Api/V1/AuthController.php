@@ -58,12 +58,6 @@ class AuthController extends Controller
         $token = $request->header('Authorization');
         $user_id = (JwtToken::decode($token))->user_id;
         $user = User::find($user_id);
-        if (is_null($user))
-            return JsonResponse::failedResponse(
-                ['token' => 'The user was not found with this token.'],
-                'The user was not found with this token.',
-                Response::HTTP_UNAUTHORIZED
-            );
         return JsonResponse::successResponse(
             [
                 'name' => $user->name,

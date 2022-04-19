@@ -15,6 +15,9 @@ Route::post('/register', [\App\Http\Controllers\Api\V1\AuthController::class, 'r
 Route::get('/token', [\App\Http\Controllers\Api\V1\AuthController::class, 'getToken'])->name('auth.token');
 
 
-Route::group(['middleware' => ['api.v1.token.required']], function () {
+Route::group(['middleware' => ['api.v1.token.required', 'api.v1.token.validation.data']], function () {
     Route::get('/whoami', [\App\Http\Controllers\Api\V1\AuthController::class, 'whoAmI'])->name('auth.whoami');
+    Route::group(['prefix' => 'url'], function () {
+        Route::post('/', [\App\Http\Controllers\Api\V1\UrlController::class, 'create'])->name('url.create');
+    });
 });

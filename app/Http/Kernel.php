@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
 
         'api.v1.response.error' => \App\Http\Middleware\Api\V1\JsonErrorResponse::class,
         'api.v1.token.required' => \App\Http\Middleware\Api\V1\Auth\TokenRequiredMiddleware::class,
+        'api.v1.token.validation.data' => \App\Http\Middleware\Api\V1\Auth\TokenValidationDataMiddleware::class,
     ];
 }
