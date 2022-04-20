@@ -20,7 +20,7 @@ class UrlController extends Controller
 
         do {
             try {
-                Url::create($data);
+                $created_url = Url::create($data);
                 break;
             } catch (\Exception $e) {
                 // TODO if just unique exceptions add extra number otherwise show error to user and log it
@@ -28,7 +28,13 @@ class UrlController extends Controller
             }
         } while (true);
 
-        return JsonResponse::successResponse(['target' => $data['target'], 'path' => $data['path']], 'url created', 201);
+        return JsonResponse::successResponse(
+            [
+                'target' => $data['target'],
+                'url' => $created_url->shortUrl
+            ],
+            'Short url is ready.',
+            201);
     }
 
     protected function getUrlCreateData($request, string $path): array

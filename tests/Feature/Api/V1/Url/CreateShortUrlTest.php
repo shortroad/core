@@ -143,8 +143,8 @@ class CreateShortUrlTest extends TestCase implements TokenAuthenticateInterface
         $response->assertJsonStructure([
             'message',
             'data' => [
-                'path',
-                'target'
+                'target',
+                'url'
             ],
             'success',
         ]);
