@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Helpers\Api\V1\CreateUrlPath;
+use App\Helpers\Api\V1\HeaderData;
 use App\Helpers\Api\V1\JsonResponse;
 use App\Helpers\JwtToken;
 use App\Http\Controllers\Controller;
@@ -40,16 +41,10 @@ class UrlController extends Controller
     protected function getUrlCreateData($request, string $path): array
     {
         return [
-            'user_id' => $this->getUserId($request),
+            'user_id' => HeaderData::getAuthTokenDecodedData($request, 'user_id'),
             'path' => $path,
             'target' => $request->input('target'),
         ];
     }
 
-    protected function getUserId(Request $request)
-    {
-        $token = $request->header('Authorization');
-        $jwtTokenData = JwtToken::decode($token);
-        return $jwtTokenData->user_id;
-    }
 }
