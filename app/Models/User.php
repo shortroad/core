@@ -41,4 +41,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Get the urls from user
+     */
+    public function urls()
+    {
+        return $this->hasMany(Url::class);
+    }
 }

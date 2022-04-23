@@ -21,4 +21,12 @@ class Url extends Model
     {
         return url($this->attributes['path']);
     }
+
+    /**
+     * Get the user that owns the urls.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
