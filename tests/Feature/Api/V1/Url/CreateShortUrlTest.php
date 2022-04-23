@@ -144,7 +144,7 @@ class CreateShortUrlTest extends TestCase implements TokenAuthenticateInterface
             'message',
             'data' => [
                 'target',
-                'url'
+                'path'
             ],
             'success',
         ]);

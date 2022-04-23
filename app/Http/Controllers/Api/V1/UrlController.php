@@ -34,7 +34,7 @@ class UrlController extends Controller
         return JsonResponse::successResponse(
             [
                 'target' => $data['target'],
-                'url' => \url($data['path'])
+                'path' => \url($data['path'])
             ],
             'Short url is ready.',
             201);
