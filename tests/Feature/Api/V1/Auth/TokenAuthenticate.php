@@ -14,6 +14,7 @@ trait TokenAuthenticate
     public string $header_token;
     public string $route_method;
     public string $route;
+    public User $user;
 
     /**
      * Set token value.
@@ -22,13 +23,13 @@ trait TokenAuthenticate
      */
     public function setToken(): void
     {
-        $user = User::create([
+        $this->user = User::create([
             'name' => 'Mohammad Gazori',
             'email' => 'info@mgazori.com',
             'password' => Hash::make(12345678)
         ]);
         $this->token = JwtToken::generate([
-            'user_id' => $user->id,
+            'user_id' => $this->user->id,
             'created_at' => time()
         ]);
         $this->header_token = 'Bearer ' . $this->token;
