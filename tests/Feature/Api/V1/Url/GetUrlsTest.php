@@ -34,7 +34,7 @@ class GetUrlsTest extends TestCase implements TokenAuthenticateInterface
      */
     public function test_user_can_get_all_urls_data()
     {
-        $urls = Url::factory(5)->create(['user_id', $this->user->id]);
+        $urls = Url::factory(5)->create(['user_id' => $this->user->id]);
 
         $response = $this->json($this->route_method, $this->route, [], ['HTTP_Authorization' => $this->header_token]);
 
@@ -52,12 +52,11 @@ class GetUrlsTest extends TestCase implements TokenAuthenticateInterface
      */
     public function test_get_urls_format_should_be_paginated_format()
     {
-        $urls = Url::factory(5)->create(['user_id', $this->user->id]);
+        $urls = Url::factory(5)->create(['user_id' => $this->user->id]);
 
         $response = $this->json($this->route_method, $this->route, [], ['HTTP_Authorization' => $this->header_token]);
 
         $response->assertJsonStructure([
-            'success',
             "current_page",
             "data" => [
                 '*' => [
@@ -95,11 +94,11 @@ class GetUrlsTest extends TestCase implements TokenAuthenticateInterface
     {
         $other_user_url = Url::factory()->create();
 
-        $this_user_url = Url::factory(2)->create(['user_id', $this->user->id]);
+        $this_user_url = Url::factory(2)->create(['user_id' => $this->user->id]);
 
         $response = $this->json($this->route_method, $this->route, [], ['HTTP_Authorization' => $this->header_token]);
 
-        $this->assertFalse($response->getContent(), \url($other_user_url->path));
+        $this->assertFalse(str_contains($response->getContent(), \url($other_user_url->path)));
 
         $response->assertStatus(Response::HTTP_OK);
     }

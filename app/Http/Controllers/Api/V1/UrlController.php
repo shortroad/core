@@ -10,9 +10,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Url\CreateShortUrlRequest;
 use App\Models\Url;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class UrlController extends Controller
 {
+    public int $urlPerPage = 50;
 
     public function create(CreateShortUrlRequest $request)
     {
@@ -21,7 +23,7 @@ class UrlController extends Controller
 
         do {
             try {
-                $created_url = Url::create($data);
+                Url::create($data);
                 break;
             } catch (\Exception $e) {
                 // TODO if just unique exceptions add extra number otherwise show error to user and log it
@@ -32,7 +34,7 @@ class UrlController extends Controller
         return JsonResponse::successResponse(
             [
                 'target' => $data['target'],
-                'url' => $created_url->shortUrl
+                'url' => \url($data['path'])
             ],
             'Short url is ready.',
             201);
@@ -45,6 +47,12 @@ class UrlController extends Controller
             'path' => $path,
             'target' => $request->input('target'),
         ];
+    }
+
+    public function getAll(Request $request)
+    {
+        $urls = Url::select(['path', 'target'])->where(['user_id' => HeaderData::getAuthTokenDecodedData($request, 'user_id')])->paginate($this->urlPerPage);
+        return response()->json($urls, Response::HTTP_OK);
     }
 
 }

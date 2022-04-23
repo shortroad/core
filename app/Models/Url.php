@@ -17,7 +17,7 @@ class Url extends Model
         'target'
     ];
 
-    protected function getShortUrlAttribute(): string
+    protected function getPathAttribute(): string
     {
         return url($this->attributes['path']);
     }
