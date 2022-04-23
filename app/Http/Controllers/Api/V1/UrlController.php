@@ -51,8 +51,43 @@ class UrlController extends Controller
 
     public function getAll(Request $request)
     {
-        $urls = Url::select(['path', 'target'])->where(['user_id' => HeaderData::getAuthTokenDecodedData($request, 'user_id')])->paginate($this->urlPerPage);
+        $urls = Url::select(['path', 'target'])
+            ->where(['user_id' => HeaderData::getAuthTokenDecodedData($request, 'user_id')])
+            ->paginate($this->urlPerPage);
         return response()->json($urls, Response::HTTP_OK);
+    }
+
+    public function getSingle(string $path)
+    {
+        $requested_user_id = HeaderData::getAuthTokenDecodedData(\request(), 'user_id');
+
+        $url = Url::where(['path' => $path])->first();
+
+        if (is_null($url))
+            return JsonResponse::failedResponse(
+                [
+                    'path' => 'This path not found'
+                ],
+                'This path not found',
+                Response::HTTP_NOT_FOUND
+            );
+
+        return $url->user_id == $requested_user_id ?
+            JsonResponse::successResponse(
+                [
+                    'target' => $url->target,
+                    'path' => $url->path
+                ],
+                'Your data is ready!',
+                Response::HTTP_OK
+            ) :
+            JsonResponse::failedResponse(
+                [
+                    'path' => 'This path not accessible for you'
+                ],
+                'This path not accessible for you',
+                Response::HTTP_UNAUTHORIZED
+            );
     }
 
 }

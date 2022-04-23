@@ -22,7 +22,7 @@ class GetSingleUrlTest extends TestCase implements TokenAuthenticateInterface
     public function setUp(): void
     {
         parent::setUp();
-        $this->route = route('api.v1.url.single', '');
+        $this->route = route('api.v1.url.single', 'fot-auth-route-test');
         $this->route_method = 'GET';
         $this->setToken();
     }
@@ -36,7 +36,10 @@ class GetSingleUrlTest extends TestCase implements TokenAuthenticateInterface
     {
         $url = Url::factory()->create(['user_id' => $this->user->id]);
 
-        $response = $this->json($this->route_method . $url->path, $this->route, [], ['HTTP_Authorization' => $this->header_token]);
+        $response = $this->getJson(
+            rtrim($this->route, 'fot-auth-route-test') . ltrim($url->path, \url('')),
+            ['HTTP_Authorization' => $this->header_token]
+        );
 
         $response_data = $response->decodeResponseJson()['data'];
 
@@ -55,22 +58,47 @@ class GetSingleUrlTest extends TestCase implements TokenAuthenticateInterface
     }
 
     /**
-     * User can't get other user urls
+     * User can't get other user url data
      *
      * @return void
      */
-    public function test_user_cant_get_other_user_urls_data()
+    public function test_user_cant_get_other_user_url_data()
     {
         $other_user_url = Url::factory()->create();
 
-        $response = $this->json($this->route_method . $other_user_url->path, $this->route, [], ['HTTP_Authorization' => $this->header_token]);
+        $response = $this->getJson(
+            rtrim($this->route, 'fot-auth-route-test') . ltrim($other_user_url->path, \url('')),
+            ['HTTP_Authorization' => $this->header_token]);
 
         $response->assertStatus(Response::HTTP_UNAUTHORIZED);
 
         $response->assertJsonStructure([
             'message',
             'errors' => [
-                'email'
+                'path'
+            ],
+            'success'
+        ]);
+    }
+
+    /**
+     * User can't get undefined url data
+     *
+     * @return void
+     */
+    public function test_user_cant_get_undefined_url_data()
+    {
+        $response = $this->getJson(
+            rtrim($this->route, 'fot-auth-route-test') . 'notFound',
+            ['HTTP_Authorization' => $this->header_token]
+        );
+
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'path'
             ],
             'success'
         ]);
