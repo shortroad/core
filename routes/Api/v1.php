@@ -21,5 +21,6 @@ Route::group(['middleware' => ['api.v1.token.required', 'api.v1.token.validation
         Route::post('/', [\App\Http\Controllers\Api\V1\UrlController::class, 'create'])->name('url.create');
         Route::get('/all', [\App\Http\Controllers\Api\V1\UrlController::class, 'getAll'])->name('url.all');
         Route::get('/{path}', [\App\Http\Controllers\Api\V1\UrlController::class, 'getSingle'])->name('url.single');
+        Route::delete('/{path}', [\App\Http\Controllers\Api\V1\UrlController::class, 'deleteSingle'])->name('url.delete');
     });
 });

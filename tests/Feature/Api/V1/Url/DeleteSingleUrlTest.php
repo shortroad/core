@@ -93,6 +93,7 @@ class DeleteSingleUrlTest extends TestCase implements TokenAuthenticateInterface
     {
         $response = $this->deleteJson(
             rtrim($this->route, 'for-auth-route-test') . 'notFound',
+            [],
             ['HTTP_Authorization' => $this->header_token]
         );
 
